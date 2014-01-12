@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 小火箭喷火的动画 -->
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false" >
+
+    <item
+        android:drawable="@drawable/desktop_rocket_launch_1"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/desktop_rocket_launch_2"
+        android:duration="70"/>
+
+</animation-list>

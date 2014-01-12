@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 发射台动画切换 -->
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false" >
+
+    <item
+        android:drawable="@drawable/desktop_bg_tips_1"
+        android:duration="70"/>
+    <item
+        android:drawable="@drawable/desktop_bg_tips_2"
+        android:duration="70"/>
+
+</animation-list>
