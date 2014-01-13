@@ -21,8 +21,6 @@ public class RocketActivity extends Activity {
 	private int mWindowWidth;
 	private int mWindowHeight;
 
-	private MediaPlayer mMediaPlayer;
-
 	private ImageView iv_rocket;
 	private ImageView iv_cloud;
 	private ImageView iv_cloud_line;
@@ -62,13 +60,6 @@ public class RocketActivity extends Activity {
 		fly();
 	}
 
-	private void changelauncherState(boolean isReadFly) {
-
-		if (isReadFly) {
-		} else {
-		}
-	}
-
 	/**
 	 * 火箭飞起来的动画，同时下方播放冒烟的动画
 	 */
@@ -77,18 +68,16 @@ public class RocketActivity extends Activity {
 		Animation animation = AnimationUtils.loadAnimation(
 				this.getApplicationContext(), R.anim.rocket_up);
 
-		Animation disappearAnimation = new AlphaAnimation(1.0f, 0.0f);
-		disappearAnimation.setDuration(1000);
-		disappearAnimation.setFillAfter(true);
-
 		animation.setAnimationListener(new AnimationListener() {
 
 			@Override
 			public void onAnimationStart(Animation animation) {
 				// 开始发射的时候去博凡动画
-				mMediaPlayer = MediaPlayer.create(RocketActivity.this,
+				MediaPlayer player = MediaPlayer.create(RocketActivity.this,
 						R.raw.rocket);
-				mMediaPlayer.start();
+				player.setLooping(false);
+				player.setVolume(1.0f, 1.0f);
+				player.start();
 			}
 
 			@Override
@@ -98,8 +87,6 @@ public class RocketActivity extends Activity {
 			@Override
 			public void onAnimationEnd(Animation animation) {
 				// 火箭播放完成后就去把云彩都消失
-				mMediaPlayer.stop();
-				mMediaPlayer.release();
 				removeClound();
 				finish();
 			}
@@ -116,6 +103,10 @@ public class RocketActivity extends Activity {
 	}
 
 	private void removeClound() {
+		Animation disappearAnimation = AnimationUtils.loadAnimation(
+				RocketActivity.this, R.anim.fade_scale_out);
+		
+
 		iv_cloud.setVisibility(View.GONE);
 		iv_cloud_line.setVisibility(View.GONE);
 	}
