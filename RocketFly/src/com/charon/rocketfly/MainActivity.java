@@ -1,13 +1,10 @@
 package com.charon.rocketfly;
 
-import java.lang.reflect.Field;
-
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.AnimationDrawable;
-import android.media.MediaPlayer;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
@@ -18,8 +15,6 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 
 import com.charon.rocketfly.util.DenstyUtil;
@@ -41,12 +36,7 @@ public class MainActivity extends Activity {
 	private static int mLauncherHeight;
 	private static int mLauncherWidth;
 
-	private MediaPlayer mMediaPlayer;
-
 	private Vibrator mVibrator;
-
-	private static View clound;
-	private static View clound_line;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,9 +61,11 @@ public class MainActivity extends Activity {
 	public void cancel(View view) {
 		removeIcon();
 		removeLauncher();
-		removeClound();
 	}
 
+	/**
+	 * 创建桌面悬浮窗，一旦点击就变成小火箭
+	 */
 	private void createIcon() {
 		removeIcon();
 		iconParams = new LayoutParams();
@@ -120,7 +112,9 @@ public class MainActivity extends Activity {
 					// 手指抬起的时候，要么小火箭去发射，要么就是恢复到原来的提示图标那样
 					Log.d(TAG, "action up");
 					if (isReadyToLaunch(iconParams.x, iconParams.y)) {
-						fly();
+						startActivity(new Intent(MainActivity.this
+								.getApplicationContext(), RocketActivity.class));
+						removeIcon();
 						removeLauncher();
 					} else {
 						icon.setBackgroundResource(R.drawable.floating_desktop_tips_rocket_bg);
@@ -155,9 +149,11 @@ public class MainActivity extends Activity {
 		removeLauncher();
 	}
 
+	/**
+	 * 创建桌面发射台
+	 */
 	private void createLauncher() {
 		removeLauncher();
-		removeClound();
 
 		launcherParams = new LayoutParams();
 		rocket_launcher = new ImageView(this.getApplicationContext());
@@ -186,6 +182,12 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	/**
+	 * 更改发射台的状态
+	 * 
+	 * @param isReadFly
+	 *            是否可以进入发射状态
+	 */
 	private void changelauncherState(boolean isReadFly) {
 		if (rocket_launcher == null) {
 			return;
@@ -208,14 +210,20 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	/**
+	 * 判断是否可以进行发射
+	 * 
+	 * @param x
+	 *            当前火箭的距x轴的距离
+	 * @param y
+	 *            当前火箭的距y轴的距离
+	 * @return true为进入发射状态，反之为false
+	 */
 	private boolean isReadyToLaunch(int x, int y) {
 		int minWidth = mWindowWidth / 2 - mLauncherWidth / 2;
 		int maxWidth = mWindowWidth - (mWindowWidth / 2 - mLauncherWidth / 2);
 		if ((x > minWidth && x < maxWidth)
-				&& (y > mWindowHeight
-						- mLauncherHeight
-						- getStatusBarHeight(MainActivity.this
-								.getApplicationContext()))) {
+				&& (y > mWindowHeight - mLauncherHeight)) {
 			changelauncherState(true);
 			Log.d(TAG, "is ready to launch.. true");
 			mVibrator.vibrate(300);
@@ -225,133 +233,5 @@ public class MainActivity extends Activity {
 			Log.d(TAG, "is ready to launch.. false");
 			return false;
 		}
-	}
-
-	/**
-	 * 火箭飞起来的动画，同时下方播放冒烟的动画
-	 */
-	private void fly() {
-		Log.e(TAG, "fly....");
-		// Animation animation = AnimationUtils.loadAnimation(
-		// this.getApplicationContext(), R.anim.rocket_up);
-		//
-		// Animation disappearAnimation = new AlphaAnimation(1.0f, 0.0f);
-		// disappearAnimation.setDuration(1000);
-		// disappearAnimation.setFillAfter(true);
-		//
-		// animation.setAnimationListener(new AnimationListener() {
-		//
-		// @Override
-		// public void onAnimationStart(Animation animation) {
-		// // 开始发射的时候去博凡动画
-		// mMediaPlayer = MediaPlayer.create(MainActivity.this,
-		// R.raw.rocket);
-		// mMediaPlayer.start();
-		// }
-		//
-		// @Override
-		// public void onAnimationRepeat(Animation animation) {
-		// }
-		//
-		// @Override
-		// public void onAnimationEnd(Animation animation) {
-		// // 火箭播放完成后就去把云彩都消失
-		// mMediaPlayer.stop();
-		// mMediaPlayer.release();
-		// }
-		// });
-		//
-		// icon.startAnimation(animation);
-
-		new LaunchTask().execute();
-		createClound();
-	}
-
-	private void createClound() {
-		removeClound();
-		launcherParams = new LayoutParams();
-		clound = new ImageView(this.getApplicationContext());
-		clound.setBackgroundResource(R.drawable.desktop_smoke_m);
-		launcherParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
-		Log.d(TAG, "create launcher. width::" + rocket_launcher.getWidth());
-		launcherParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-		launcherParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
-		launcherParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-				| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
-		launcherParams.format = PixelFormat.TRANSLUCENT;
-		launcherParams.type = WindowManager.LayoutParams.TYPE_TOAST;
-
-		mWindowManager.addView(clound, launcherParams);
-	}
-
-	private void removeClound() {
-		if (clound != null && clound.getParent() != null) {
-			mWindowManager.removeView(clound);
-		}
-	}
-
-	/**
-	 * 开始执行发射小火箭的任务。
-	 */
-	class LaunchTask extends AsyncTask<Void, Void, Void> {
-
-		@Override
-		protected Void doInBackground(Void... params) {
-			// 在这里对小火箭的位置进行改变，从而产生火箭升空的效果
-			while (iconParams.y > 0) {
-				iconParams.y = iconParams.y - 10;
-				publishProgress();
-				try {
-					Thread.sleep(8);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			return null;
-		}
-
-		@Override
-		protected void onProgressUpdate(Void... values) {
-			mWindowManager.updateViewLayout(icon, iconParams);
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			// 火箭升空结束后，回归到悬浮窗状态
-			// updateViewStatus();
-			// mParams.x = (int) (xDownInScreen - xInView);
-			// mParams.y = (int) (yDownInScreen - yInView);
-			// windowManager.updateViewLayout(FloatWindowSmallView.this,
-			// mParams);
-			
-//			Animation disappearAnimation = new AlphaAnimation(1.0f, 0.0f);
-//			disappearAnimation.setDuration(1000);
-//			disappearAnimation.setFillAfter(true);
-//			clound.startAnimation(disappearAnimation);
-			
-			removeClound();
-			icon.setBackgroundResource(R.drawable.floating_desktop_tips_rocket_bg);
-			createIcon();
-		}
-
-	}
-
-	/**
-	 * 用于获取状态栏的高度。
-	 * 
-	 * @return 返回状态栏高度的像素值。
-	 */
-	public static int getStatusBarHeight(Context context) {
-		int statusBarHeight = 0;
-		try {
-			Class<?> c = Class.forName("com.android.internal.R$dimen");
-			Object o = c.newInstance();
-			Field field = c.getField("status_bar_height");
-			int x = (Integer) field.get(o);
-			statusBarHeight = context.getResources().getDimensionPixelSize(x);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return statusBarHeight;
 	}
 }
