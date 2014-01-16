@@ -66,7 +66,7 @@ public class MainActivity extends Activity {
 	/**
 	 * 创建桌面悬浮窗，一旦点击就变成小火箭
 	 */
-	private void createIcon() {
+	public void createIcon() {
 		removeIcon();
 		iconParams = new LayoutParams();
 		icon = new ImageView(this.getApplicationContext());
@@ -81,18 +81,28 @@ public class MainActivity extends Activity {
 				switch (event.getAction()) {
 				case MotionEvent.ACTION_DOWN:
 					// 手指一旦点击了后，就要去创建小火箭，和下面的发射台，并且给小火箭播放动画
-					Log.d(TAG, "actin down change it to rocket");
+
+					startX = (int) event.getRawX();
+					startY = (int) event.getRawY();
+
 					icon.setBackgroundResource(R.drawable.rocket_fire);
 					mFireAnimationDrawable = (AnimationDrawable) icon
 							.getBackground();
 					mFireAnimationDrawable.start();
+					iconParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+					iconParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+					Log.d(TAG, "actin down change it to rocket" + "startX:"
+							+ startX + "getX:" + (int) event.getX()
+							+ "iconHeight:" + icon.getHeight()
+							+ "paramsHeight:" + iconParams.height);
+					iconParams.y = startY - icon.getHeight()*2;
+					mWindowManager.updateViewLayout(icon, iconParams);
 
 					createLauncher();
 
-					startX = (int) event.getRawX();
-					startY = (int) event.getRawY();
 					break;
 				case MotionEvent.ACTION_MOVE:
+
 					Log.d(TAG, "action move change the location");
 					int newX = (int) event.getRawX();
 					int newY = (int) event.getRawY();
@@ -104,14 +114,15 @@ public class MainActivity extends Activity {
 					startX = (int) event.getRawX();
 					startY = (int) event.getRawY();
 					// 小火箭去移动位置
-					isReadyToLaunch(iconParams.x, iconParams.y);
+					isReadyToLaunch(newX, newY);
 
 					break;
 
 				case MotionEvent.ACTION_UP:
 					// 手指抬起的时候，要么小火箭去发射，要么就是恢复到原来的提示图标那样
 					Log.d(TAG, "action up");
-					if (isReadyToLaunch(iconParams.x, iconParams.y)) {
+					if (isReadyToLaunch((int) event.getRawX(),
+							(int) event.getRawY())) {
 						startActivity(new Intent(MainActivity.this
 								.getApplicationContext(), RocketActivity.class));
 						removeIcon();
@@ -137,7 +148,6 @@ public class MainActivity extends Activity {
 				| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
 		iconParams.format = PixelFormat.TRANSLUCENT;
 		iconParams.type = WindowManager.LayoutParams.TYPE_PRIORITY_PHONE;
-		iconParams.windowAnimations = android.R.anim.accelerate_interpolator;
 
 		mWindowManager.addView(icon, iconParams);
 	}
@@ -159,19 +169,23 @@ public class MainActivity extends Activity {
 		rocket_launcher = new ImageView(this.getApplicationContext());
 		changelauncherState(false);
 
-		launcherParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
-		Log.d(TAG, "create launcher. width::" + rocket_launcher.getWidth());
 		launcherParams.height = (int) DenstyUtil.convertDpToPixel(80,
 				this.getApplicationContext());
 		launcherParams.width = (int) DenstyUtil.convertDpToPixel(200,
 				this.getApplicationContext());
+		mLauncherHeight = launcherParams.height;
+		mLauncherWidth = launcherParams.width;
+
+		// 这个x、y是起始添加的位置
+		launcherParams.x = mWindowWidth / 2 - mLauncherWidth / 2;
+		launcherParams.y = mWindowHeight - mLauncherHeight;
+		launcherParams.gravity = Gravity.LEFT | Gravity.TOP;
+
+		Log.d(TAG, "create launcher. width::" + rocket_launcher.getWidth());
 		launcherParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 				| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
 		launcherParams.format = PixelFormat.TRANSLUCENT;
 		launcherParams.type = WindowManager.LayoutParams.TYPE_TOAST;
-
-		mLauncherHeight = launcherParams.height;
-		mLauncherWidth = launcherParams.width;
 
 		mWindowManager.addView(rocket_launcher, launcherParams);
 	}
@@ -220,18 +234,16 @@ public class MainActivity extends Activity {
 	 * @return true为进入发射状态，反之为false
 	 */
 	private boolean isReadyToLaunch(int x, int y) {
-		int minWidth = mWindowWidth / 2 - mLauncherWidth / 2;
-		int maxWidth = mWindowWidth - (mWindowWidth / 2 - mLauncherWidth / 2);
-		if ((x > minWidth && x < maxWidth)
-				&& (y > mWindowHeight - mLauncherHeight)) {
+		Log.e(TAG, "::y::" + y + "::launcherParams.y::" + launcherParams.y);
+		if ((x > launcherParams.x && x < launcherParams.x
+				+ launcherParams.width)
+				&& (y > launcherParams.y)) {
 			changelauncherState(true);
 			Log.d(TAG, "is ready to launch.. true");
-			mVibrator.vibrate(300);
+			mVibrator.vibrate(100);
 			return true;
-		} else {
-			changelauncherState(false);
-			Log.d(TAG, "is ready to launch.. false");
-			return false;
 		}
+		changelauncherState(false);
+		return false;
 	}
 }

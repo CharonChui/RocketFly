@@ -11,21 +11,27 @@
         android:layout_centerHorizontal="true"
         android:src="@drawable/rocket_fire" />
 
-    <ImageView
-        android:id="@+id/iv_cloud"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@drawable/desktop_smoke_m"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/iv_cloud_line"
+    <RelativeLayout
+        android:id="@+id/rl_cloud"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/iv_cloud"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/desktop_smoke_t"
-        android:visibility="gone" />
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:id="@+id/iv_cloud"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/desktop_smoke_m"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/iv_cloud_line"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/iv_cloud"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/desktop_smoke_t"
+            android:visibility="gone" />
+    </RelativeLayout>
 
 </RelativeLayout>

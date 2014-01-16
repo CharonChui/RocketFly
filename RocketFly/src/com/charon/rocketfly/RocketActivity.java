@@ -2,17 +2,20 @@ package com.charon.rocketfly;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 public class RocketActivity extends Activity {
 
@@ -24,6 +27,9 @@ public class RocketActivity extends Activity {
 	private ImageView iv_rocket;
 	private ImageView iv_cloud;
 	private ImageView iv_cloud_line;
+	private RelativeLayout rl_cloud;
+
+	private AnimationDrawable fireAnimationDrawable;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +51,7 @@ public class RocketActivity extends Activity {
 		iv_rocket = (ImageView) findViewById(R.id.iv_rocket);
 		iv_cloud = (ImageView) findViewById(R.id.iv_cloud);
 		iv_cloud_line = (ImageView) findViewById(R.id.iv_cloud_line);
+		rl_cloud = (RelativeLayout) findViewById(R.id.rl_cloud);
 	}
 
 	private void initView() {
@@ -53,10 +60,34 @@ public class RocketActivity extends Activity {
 		iv_rocket.setVisibility(View.VISIBLE);
 	}
 
+	// @Override
+	// public void onWindowFocusChanged(boolean hasFocus) {
+	// super.onWindowFocusChanged(hasFocus);
+	// iv_rocket.setBackgroundResource(R.drawable.rocket_fire);
+	// fireAnimationDrawable = (AnimationDrawable) iv_rocket
+	// .getBackground();
+	// fireAnimationDrawable.start();
+	//
+	// fly();
+	//
+	// AlphaAnimation cloudAppearAnimation = new AlphaAnimation(0.1f, 1.0f);
+	// cloudAppearAnimation.setDuration(500);
+	//
+	// Animation appearAnimation = new AlphaAnimation(0.1f, 1.0f);
+	// appearAnimation.setDuration(500);
+	// appearAnimation.setStartOffset(300);
+	//
+	// iv_cloud.startAnimation(cloudAppearAnimation);
+	// iv_cloud_line.startAnimation(appearAnimation);
+	// }
+
 	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		super.onWindowFocusChanged(hasFocus);
+	protected void onStart() {
+		super.onStart();
 		iv_rocket.setBackgroundResource(R.drawable.rocket_fire);
+		fireAnimationDrawable = (AnimationDrawable) iv_rocket.getBackground();
+		fireAnimationDrawable.start();
+
 		fly();
 	}
 
@@ -67,6 +98,7 @@ public class RocketActivity extends Activity {
 		Log.e(TAG, "fly....");
 		Animation animation = AnimationUtils.loadAnimation(
 				this.getApplicationContext(), R.anim.rocket_up);
+		animation.setFillAfter(true);
 
 		animation.setAnimationListener(new AnimationListener() {
 
@@ -78,6 +110,17 @@ public class RocketActivity extends Activity {
 				player.setLooping(false);
 				player.setVolume(1.0f, 1.0f);
 				player.start();
+
+				AlphaAnimation cloudAppearAnimation = new AlphaAnimation(0.1f,
+						1.0f);
+				cloudAppearAnimation.setDuration(500);
+
+				Animation appearAnimation = new AlphaAnimation(0.1f, 1.0f);
+				appearAnimation.setDuration(500);
+				appearAnimation.setStartOffset(300);
+
+				iv_cloud.startAnimation(cloudAppearAnimation);
+				iv_cloud_line.startAnimation(appearAnimation);
 			}
 
 			@Override
@@ -88,7 +131,7 @@ public class RocketActivity extends Activity {
 			public void onAnimationEnd(Animation animation) {
 				// 火箭播放完成后就去把云彩都消失
 				removeClound();
-				finish();
+				// finish();
 			}
 		});
 
@@ -103,11 +146,36 @@ public class RocketActivity extends Activity {
 	}
 
 	private void removeClound() {
-		Animation disappearAnimation = AnimationUtils.loadAnimation(
-				RocketActivity.this, R.anim.fade_scale_out);
-		
+		AlphaAnimation disappearAnimation = new AlphaAnimation(1.0f, 0.0f);
+		disappearAnimation.setDuration(1000);
+		disappearAnimation.setFillAfter(true);
+		disappearAnimation
+				.setInterpolator(new AccelerateDecelerateInterpolator());
 
-		iv_cloud.setVisibility(View.GONE);
-		iv_cloud_line.setVisibility(View.GONE);
+		disappearAnimation.setAnimationListener(new AnimationListener() {
+
+			@Override
+			public void onAnimationStart(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				iv_rocket.setVisibility(View.GONE);
+				iv_cloud.setVisibility(View.GONE);
+				iv_cloud_line.setVisibility(View.GONE);
+
+				finish();
+			}
+		});
+		rl_cloud.startAnimation(disappearAnimation);
+
+		// iv_cloud.setVisibility(View.GONE);
+		// iv_cloud_line.setVisibility(View.GONE);
 	}
 }
