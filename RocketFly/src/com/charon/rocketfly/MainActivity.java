@@ -95,7 +95,8 @@ public class MainActivity extends Activity {
 							+ startX + "getX:" + (int) event.getX()
 							+ "iconHeight:" + icon.getHeight()
 							+ "paramsHeight:" + iconParams.height);
-					iconParams.y = startY - icon.getHeight()*2;
+					iconParams.y = iconParams.y - iconParams.height
+							- icon.getHeight() * 2;
 					mWindowManager.updateViewLayout(icon, iconParams);
 
 					createLauncher();
@@ -128,8 +129,8 @@ public class MainActivity extends Activity {
 						removeIcon();
 						removeLauncher();
 					} else {
-						icon.setBackgroundResource(R.drawable.floating_desktop_tips_rocket_bg);
 						createIcon();
+						icon.setBackgroundResource(R.drawable.floating_desktop_tips_rocket_bg);
 					}
 
 					break;
@@ -246,4 +247,5 @@ public class MainActivity extends Activity {
 		changelauncherState(false);
 		return false;
 	}
+
 }

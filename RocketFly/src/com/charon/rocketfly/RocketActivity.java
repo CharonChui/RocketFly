@@ -1,14 +1,11 @@
 package com.charon.rocketfly;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -20,9 +17,6 @@ import android.widget.RelativeLayout;
 public class RocketActivity extends Activity {
 
 	protected static final String TAG = "RocketActivity";
-	private WindowManager mWindowManager;
-	private int mWindowWidth;
-	private int mWindowHeight;
 
 	private ImageView iv_rocket;
 	private ImageView iv_cloud;
@@ -34,15 +28,7 @@ public class RocketActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.e(TAG, "RocketActivity...onCreate");
 		setContentView(R.layout.activity_rocket);
-		mWindowManager = (WindowManager) this.getApplicationContext()
-				.getSystemService(Context.WINDOW_SERVICE);
-		DisplayMetrics displayMetrics = new DisplayMetrics();
-		mWindowManager.getDefaultDisplay().getMetrics(displayMetrics);
-		mWindowWidth = displayMetrics.widthPixels;
-		mWindowHeight = displayMetrics.heightPixels;
-
 		findView();
 		initView();
 	}
@@ -59,27 +45,6 @@ public class RocketActivity extends Activity {
 		iv_rocket.setFocusable(true);
 		iv_rocket.setVisibility(View.VISIBLE);
 	}
-
-	// @Override
-	// public void onWindowFocusChanged(boolean hasFocus) {
-	// super.onWindowFocusChanged(hasFocus);
-	// iv_rocket.setBackgroundResource(R.drawable.rocket_fire);
-	// fireAnimationDrawable = (AnimationDrawable) iv_rocket
-	// .getBackground();
-	// fireAnimationDrawable.start();
-	//
-	// fly();
-	//
-	// AlphaAnimation cloudAppearAnimation = new AlphaAnimation(0.1f, 1.0f);
-	// cloudAppearAnimation.setDuration(500);
-	//
-	// Animation appearAnimation = new AlphaAnimation(0.1f, 1.0f);
-	// appearAnimation.setDuration(500);
-	// appearAnimation.setStartOffset(300);
-	//
-	// iv_cloud.startAnimation(cloudAppearAnimation);
-	// iv_cloud_line.startAnimation(appearAnimation);
-	// }
 
 	@Override
 	protected void onStart() {
@@ -115,9 +80,9 @@ public class RocketActivity extends Activity {
 						1.0f);
 				cloudAppearAnimation.setDuration(500);
 
-				Animation appearAnimation = new AlphaAnimation(0.1f, 1.0f);
+				Animation appearAnimation = new AlphaAnimation(0.0f, 1.0f);
 				appearAnimation.setDuration(500);
-				appearAnimation.setStartOffset(300);
+				appearAnimation.setStartOffset(250);
 
 				iv_cloud.startAnimation(cloudAppearAnimation);
 				iv_cloud_line.startAnimation(appearAnimation);
@@ -131,7 +96,6 @@ public class RocketActivity extends Activity {
 			public void onAnimationEnd(Animation animation) {
 				// 火箭播放完成后就去把云彩都消失
 				removeClound();
-				// finish();
 			}
 		});
 
