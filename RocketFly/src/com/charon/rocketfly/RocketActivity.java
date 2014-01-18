@@ -1,6 +1,7 @@
 package com.charon.rocketfly;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -13,6 +14,9 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import com.charon.rocketfly.setvice.RocketService;
+import com.charon.rocketfly.util.ServiceUtil;
 
 public class RocketActivity extends Activity {
 
@@ -96,6 +100,11 @@ public class RocketActivity extends Activity {
 			public void onAnimationEnd(Animation animation) {
 				// 火箭播放完成后就去把云彩都消失
 				removeClound();
+				if (!ServiceUtil.isServiceRunning(RocketActivity.this,
+						RocketService.class)) {
+					startService(new Intent(RocketActivity.this
+							.getApplicationContext(), RocketService.class));
+				}
 			}
 		});
 
@@ -138,8 +147,5 @@ public class RocketActivity extends Activity {
 			}
 		});
 		rl_cloud.startAnimation(disappearAnimation);
-
-		// iv_cloud.setVisibility(View.GONE);
-		// iv_cloud_line.setVisibility(View.GONE);
 	}
 }
