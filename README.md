@@ -2,8 +2,8 @@ RocketFly
 ===
 
 腾讯手机管家小火箭效果(The flying effect of a rocket on tecent secure)
-
-![image](https://github.com/CharonChui/AndroidNote/blob/master/Pic/rocketfly.gif?raw=true)    
+  
+![image](https://raw.githubusercontent.com/CharonChui/Pictures/master/rocketfly.gif?raw=true)    
 
 Developed By
 ===
